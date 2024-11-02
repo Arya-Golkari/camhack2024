@@ -5,17 +5,17 @@ import cv2, time
 
 # Initialize video capture
 video = cv2.VideoCapture(0)
-address = "https://10.252.84.251:8080/video"
+address = r"https://10.252.84.251:8080/video"
 video.open(address)
 
 # Replace these with your rectangle's top-left (x, y) and width (w) and height (h)
 # x, y, w, h = 100, 100, 200, 200
 
 # Load the model
-model = load_model("keras_model.h5", compile=False)
+model = load_model(r"keras_model.h5", compile=False)
 
 # Load the labels
-class_names = open("labels.txt", "r").readlines()
+class_names = open(r"labels.txt", "r").readlines()
 
 def extract(frame):
     subframes = []
@@ -27,6 +27,7 @@ def extract(frame):
 
 while True:
     check, frame = video.read()
+    frame = cv2.resize(frame, (224, 224))
     
     if not check:
         break
@@ -74,18 +75,19 @@ while True:
         # print("Class:", class_name[2:], end="")
         # print("Confidence Score:", confidence_score)
         
-        roi = (i // 4) * 56, (i % 4) * 56, 56, 56
-        y = (i // 4) * 56
-        x = (i % 4) * 56
-        w = 56
-        h = 56
-        roi = frame[y:y+h, x:x+w]
-    
-        # Apply Gaussian blur to the region
-        blurred_roi = cv2.GaussianBlur(roi, (63, 63), 0)  # Adjust (15, 15) for more/less blur
+        if index == 0:
+            roi = (i // 4) * 56, (i % 4) * 56, 56, 56
+            y = (i // 4) * 56
+            x = (i % 4) * 56
+            w = 56
+            h = 56
+            roi = frame[y:y+h, x:x+w]
+        
+            # Apply Gaussian blur to the region
+            blurred_roi = cv2.GaussianBlur(roi, (63, 63), 0)  # Adjust (15, 15) for more/less blur
 
-        # Place the blurred region back into the frame
-        frame[y:y+h, x:x+w] = blurred_roi
+            # Place the blurred region back into the frame
+            frame[y:y+h, x:x+w] = blurred_roi
     
     # Show the frame
     cv2.imshow("Video with Blurred Region", frame)
