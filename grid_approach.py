@@ -21,13 +21,13 @@ def extract(frame):
     subframes = []
     for i in range(4):
         for j in range(4):
-            subframes.append(frame[(i*250):((i+1)*250), (j*250):((j+1)*250)])
+            subframes.append(frame[(i*224):((i+1)*224), (j*224):((j+1)*224)])
     
     return subframes
 
 while True:
     check, frame = video.read()
-    frame = cv2.resize(frame, (1000, 1000))
+    frame = cv2.resize(frame, (896, 896))
     
     if not check:
         break
@@ -77,11 +77,11 @@ while True:
         # print("Confidence Score:", confidence_score)
         
         if index == 0:
-            roi = (i // 4) * 250, (i % 4) * 250, 250, 250
-            y = (i // 4) * 250
-            x = (i % 4) * 250
-            w = 250
-            h = 250
+            roi = (i // 4) * 224, (i % 4) * 224, 224, 224
+            y = (i // 4) * 224
+            x = (i % 4) * 224
+            w = 224
+            h = 224
             roi = frame[y:y+h, x:x+w]
         
             # Apply Gaussian blur to the region
