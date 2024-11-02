@@ -21,13 +21,13 @@ def extract(frame):
     subframes = []
     for i in range(4):
         for j in range(4):
-            subframes.append(frame[(i*56):((i+1)*56), (j*56):((j+1)*56)])
+            subframes.append(frame[(i*250):((i+1)*250), (j*250):((j+1)*250)])
     
     return subframes
 
 while True:
     check, frame = video.read()
-    frame = cv2.resize(frame, (224, 224))
+    frame = cv2.resize(frame, (1000, 1000))
     
     if not check:
         break
@@ -53,8 +53,8 @@ while True:
         image = Image.open(rf"images/{i}.jpg").convert("RGB")
 
         # resizing the image to be at least 224x224 and then cropping from the center
-        size = (224, 224)
-        image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
+        # size = (250, 250)
+        # image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
 
         # turn the image into a numpy array
         image_array = np.asarray(image)
@@ -76,11 +76,11 @@ while True:
         # print("Confidence Score:", confidence_score)
         
         if index == 0:
-            roi = (i // 4) * 56, (i % 4) * 56, 56, 56
-            y = (i // 4) * 56
-            x = (i % 4) * 56
-            w = 56
-            h = 56
+            roi = (i // 4) * 250, (i % 4) * 250, 250, 250
+            y = (i // 4) * 250
+            x = (i % 4) * 250
+            w = 250
+            h = 250
             roi = frame[y:y+h, x:x+w]
         
             # Apply Gaussian blur to the region
