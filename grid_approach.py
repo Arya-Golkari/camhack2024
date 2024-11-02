@@ -1,6 +1,7 @@
 from keras.models import load_model  # TensorFlow is required for Keras to work
 from PIL import Image, ImageOps  # Install pillow instead of PIL
 import numpy as np
+import cv2, time
 
 # Initialize video capture
 video = cv2.VideoCapture(0)
@@ -11,7 +12,7 @@ video.open(address)
 # x, y, w, h = 100, 100, 200, 200
 
 # Load the model
-model = load_model("keras_Model.h5", compile=False)
+model = load_model("keras_model.h5", compile=False)
 
 # Load the labels
 class_names = open("labels.txt", "r").readlines()
@@ -70,14 +71,21 @@ while True:
         confidence_score = prediction[0][index]
 
         # Print prediction and confidence score
-        print("Class:", class_name[2:], end="")
-        print("Confidence Score:", confidence_score)
+        # print("Class:", class_name[2:], end="")
+        # print("Confidence Score:", confidence_score)
         
+        roi = (i // 4) * 56, (i % 4) * 56, 56, 56
+        y = (i // 4) * 56
+        x = (i % 4) * 56
+        w = 56
+        h = 56
+        roi = frame[y:y+h, x:x+w]
+    
         # Apply Gaussian blur to the region
-        # blurred_roi = cv2.GaussianBlur(roi, (15, 15), 0)  # Adjust (15, 15) for more/less blur
+        blurred_roi = cv2.GaussianBlur(roi, (63, 63), 0)  # Adjust (15, 15) for more/less blur
 
         # Place the blurred region back into the frame
-        # frame[y:y+h, x:x+w] = blurred_roi
+        frame[y:y+h, x:x+w] = blurred_roi
     
     # Show the frame
     cv2.imshow("Video with Blurred Region", frame)
