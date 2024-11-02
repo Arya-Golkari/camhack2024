@@ -37,8 +37,8 @@ while True:
 
     subframes = extract(frame)
 
-    for i in range(16):
-        cv2.imwrite(rf"images/{i}.jpg", subframes[i])
+    # for i in range(16):
+    #     cv2.imwrite(rf"images/{i}.jpg", subframes[i])
 
     for i in range(16):
         # Disable scientific notation for clarity
@@ -50,7 +50,8 @@ while True:
         data = np.ndarray(shape=(1, 224, 224, 3), dtype=np.float32)
 
         # Replace this with the path to your image
-        image = Image.open(rf"images/{i}.jpg").convert("RGB")
+        # image = Image.open(rf"images/{i}.jpg").convert("RGB")
+        image = Image.fromarray(cv2.cvtColor(subframes[i], cv2.COLOR_BGR2RGB))
 
         # resizing the image to be at least 224x224 and then cropping from the center
         # size = (250, 250)
