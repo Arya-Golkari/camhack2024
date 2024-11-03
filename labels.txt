@@ -1,2 +1,6 @@
 0 orange
+<<<<<<< HEAD
 1 Class 2
+=======
+1 Class 2
+>>>>>>> f9fbb66 (somewhat refactored grid approach (putting it into src/) but it doesnt work and we aren't even doing grid anymore so im not going to fix it)
