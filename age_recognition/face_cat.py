@@ -1,4 +1,5 @@
 import cv2
+from salt_and_pepper import salt_and_pepper
 from helper import *
 
 class Model:
@@ -17,24 +18,44 @@ AGE_MODEL = Model(protofile="deploy_age.prototxt",
                   labelActions=["showgreen"]*8
                   )
 
-EMOTION_MODEL = Model(protofile="deploy.prototxt", 
+EMOTION_CENSORSHIP_MODEL = Model(protofile="deploy.prototxt", 
                       caffefile="EmotiW_VGG_S.caffemodel",
                     #   labels=['Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise'],
 
-                      labels=['Angry' , 'Disgust' , 'DANGER' , 'SAFE'  , 'SAFE' ,  'Sad' , 'Surprise'],
+                      labels=['DANGER' , 'DANGER' , 'DANGER' , 'SAFE'  , 'SAFE' ,  'DANGER' , 'SAFE'],
                       labelPrefix="",
                       labelActions=[
-                          "blur",
-                          "blur",
-                          "showred",
-                          "showgreen",
-                          "showgreen",
-                          "blur",
-                          "blur"
+                            "noise",
+                            "showred",
+                            "noise",
+                            "showgreen",
+                            "showgreen",
+                            "showred",
+                            "showgreen",
+                      ])
+
+EMOTION_MODEL = Model(protofile="deploy.prototxt", 
+                      caffefile="EmotiW_VGG_S.caffemodel",
+                      labels=['Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise'],
+                      labelPrefix="",
+                      labelActions=["showgreen"]*8)
+
+EMOTION_MODEL_2 = Model(protofile="deploy.prototxt", 
+                      caffefile="EmotiW_VGG_S.caffemodel",
+                      labels=['Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise'],
+                      labelPrefix="",
+                      labelActions=[
+                            "noise",
+                            "showred",
+                            "noise",
+                            "showgreen",
+                            "showgreen",
+                            "showred",
+                            "showgreen",
                       ])
 
  
-SELECTED_MODEL = EMOTION_MODEL
+SELECTED_MODEL = EMOTION_CENSORSHIP_MODEL
 
 # face detection model
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -76,26 +97,19 @@ def process_frame(frame):
         elif action == "showred": colour = RED
 
 
+
         if action == "showgreen" or action == "showred":
             cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, colour, 2)
             cv2.rectangle(frame, (x, y), (x + w, y + h), colour, 2)
         elif action == "blur":
             print("blur placeholder")
         elif action == "noise":
-            print("noise placeholder")
+            region = frame[y:y+h, x:x+w]
+            try:
+                frame[y:y+h, x:x+w] = salt_and_pepper(region)
+            except:
+                pass
         else:
-            raise Exception("what")
+            raise Exception("invalid label action")
 
     return frame
-
-
-MODE_LABELS = {
-    "age": ("(0-2)", "(4-6)", "(8-12)", "(15-20)", "(25-32)", "(38-43)", "(48-53)", "(60-100)"),
-    "shower": ("3 years", "9 hours", "")
-}
-GOOD_MODE = False
-
-
-# # Define age ranges for the model's output
-AGE_RANGES = ["(0-2)", "(4-6)", "(8-12)", "(15-20)", "(25-32)", "(38-43)", "(48-53)", "(60-100)"]
-GOOD_AGE_RANGES = ["(0-2)", "(4-6)", "(25-32)", "(38-43)", "(48-53)", "(60-100)"]
