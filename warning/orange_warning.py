@@ -1,9 +1,9 @@
 from keras.models import load_model
 import cv2
-from ghelper import *
 from gtts import gTTS
 import numpy as np
 from playsound import playsound
+import time
 
 # Initialize video capture
 address = 0
@@ -13,8 +13,16 @@ video = cv2.VideoCapture(address)
 WARNING = "ROGUE ORANGE"
 LANGUAGE = "en"
 WARNING_AUDIO = r"OrangeWarning.mp3"
-MODEL = r"../keras_model.h5"
-LABELS = r"../labels.txt"
+MODEL = r"keras_model.h5"
+LABELS = r"labels.txt"
+
+GREEN = (0, 255, 0)
+
+detected_orange = False
+cooldown = False
+detection_start = time.time()
+
+COOLDOWN_TIME = 10
 
 # Save the warning audio
 speech = gTTS(text=WARNING, lang=LANGUAGE, slow=True)
@@ -46,16 +54,29 @@ while True:
     index = np.argmax(prediction)
 
     if index == 0:
-        cv2.putText(frame, WARNING, (200, 400), cv2.FONT_HERSHEY_SIMPLEX, 0.8, GREEN, 2)
-        playsound(WARNING_AUDIO)
+        cv2.putText(frame, WARNING, (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, GREEN, 2)
+        
+        if not cooldown:
+            detected_orange = True
 
     # Show the frame
+    frame = cv2.resize(frame, (896, 896))
     cv2.imshow("Orange Warning", frame)
 
     # Break loop on 'q' key press
     key = cv2.waitKey(1) & 0xFF
     if key & 0xFF == ord('q'):
         break
+
+    if detected_orange:
+        playsound(WARNING_AUDIO)
+        detected_orange = False
+        cooldown = True
+        detection_time = time.time()
+
+    if cooldown:
+        if time.time() - detection_time > COOLDOWN_TIME:
+            cooldown = False
 
 # Release resources
 video.release()
