@@ -81,20 +81,7 @@ def applymodel(frame):
     return index == 0  
 
 
-# frame = entire frame, rect = (leftx, topy, width, height)
-# blurStrength is actually kernel size and has to be odd
-# returns new frame
-def blurRegion(frame, rect, blurStrength=63):
-    (leftx, topy, width, height) = rect
-    rightx = leftx+width
-    bottomy = topy+height
 
-    roi = frame[topy:bottomy, leftx:rightx]
-
-    blurred_roi = cv2.GaussianBlur(roi, (blurStrength, blurStrength), 0)
-
-    frame[topy:bottomy, leftx:rightx] = blurred_roi
-    return frame
 
 
 def processFrame(frame):

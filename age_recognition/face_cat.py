@@ -9,7 +9,7 @@ class Model:
         self.labelCount = len(labels)
         self.labelPrefix = labelPrefix
         self.labelActions = labelActions
-        assert all(act in ("showgreen", "showred", "blur", "noise") for act in labelActions)
+        assert all(act in ("showgreen", "showred", "blur", "noise", "blurnoise") for act in labelActions)
 
 AGE_MODEL = Model(protofile="deploy_age.prototxt", 
                   caffefile="age_net.caffemodel", 
@@ -26,9 +26,9 @@ EMOTION_CENSORSHIP_MODEL = Model(protofile="deploy.prototxt",
                       labels=['DANGER' , 'DANGER' , 'DANGER' , 'SAFE'  , 'SAFE' ,  'DANGER' , 'SAFE'],
                       labelPrefix="",
                       labelActions=[
-                            "noise",
+                            "blurnoise",
                             "showred",
-                            "noise",
+                            "blurnoise",
                             "showgreen",
                             "showgreen",
                             "showred",
@@ -106,16 +106,15 @@ def draw_label_effects(frame, class_index, facerect):
     if action == "showgreen" or action == "showred":
         cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, colour, 2)
         cv2.rectangle(frame, (x, y), (x + w, y + h), colour, 2)
-    elif action == "blur":
-        print("blur placeholder")
-    elif action == "noise":
+    if "noise" in action:
         region = frame[y:y+h, x:x+w]
         try:
             frame[y:y+h, x:x+w] = salt_and_pepper(region)
         except:
             pass
-    else:
-        raise Exception("invalid label action")
+    if "blur" in action:
+        frame = blurRegion(frame, facerect, blurStrength=15)
+
     return frame
 
 
