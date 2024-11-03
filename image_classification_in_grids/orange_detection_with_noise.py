@@ -11,6 +11,25 @@ video.open(0)
 # Replace these with your rectangle's top-left (x, y) and width (w) and height (h)
 # x, y, w, h = 100, 100, 200, 200
 
+def salt_and_pepper(image):
+    output = np.zeros(image.shape, np.uint8)
+    block = 5
+    
+    for i in range(image.shape[0] // block):
+        for j in range(image.shape[1] // block):
+            rdn = np.random.random()
+            
+            if rdn < 0.2:
+                out = 0
+            elif rdn > 0.8:
+                out = 255
+            else:
+                out = image[i*block:(i+1)*block, j*block:(j+1)*block]
+            
+            output[i*block:(i+1)*block, j*block:(j+1)*block] = out
+    
+    return output
+
 # Load the model
 model = load_model(r"../models/teachable_machine_models/keras_model.h5", compile=False)
 
@@ -78,7 +97,6 @@ while True:
         # print("Confidence Score:", confidence_score)
         
         if index == 0:
-            roi = (i // 4) * 224, (i % 4) * 224, 224, 224
             y = (i // 4) * 224
             x = (i % 4) * 224
             w = 224
@@ -86,7 +104,7 @@ while True:
             roi = frame[y:y+h, x:x+w]
         
             # Apply Gaussian blur to the region
-            blurred_roi = cv2.GaussianBlur(roi, (63, 63), 0)  # Adjust (15, 15) for more/less blur
+            blurred_roi = salt_and_pepper(roi)  # Adjust (15, 15) for more/less blur
 
             # Place the blurred region back into the frame
             frame[y:y+h, x:x+w] = blurred_roi
