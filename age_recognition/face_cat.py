@@ -18,6 +18,7 @@ AGE_MODEL = Model(protofile="deploy_age.prototxt",
                   labelActions=["showgreen"]*8
                   )
 
+# https://github.com/GilLevi/AgeGenderDeepLearning/blob/master/EmotiW_Demo.ipynb
 EMOTION_CENSORSHIP_MODEL = Model(protofile="deploy.prototxt", 
                       caffefile="EmotiW_VGG_S.caffemodel",
                     #   labels=['Angry' , 'Disgust' , 'Fear' , 'Happy'  , 'Neutral' ,  'Sad' , 'Surprise'],
@@ -33,6 +34,7 @@ EMOTION_CENSORSHIP_MODEL = Model(protofile="deploy.prototxt",
                             "showred",
                             "showgreen",
                       ])
+
 
 EMOTION_MODEL = Model(protofile="deploy.prototxt", 
                       caffefile="EmotiW_VGG_S.caffemodel",
@@ -70,46 +72,64 @@ age_net = cv2.dnn.readNetFromCaffe(
     *(SELECTED_MODEL.files)
 )
 
-def process_frame(frame):
+
+# returns list of (x, y, width, height) tuples
+def get_faces_rects(frame):
     # Convert frame to grayscale for face detection
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+    return face_cascade.detectMultiScale(gray_frame, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-    for (x, y, w, h) in faces:
+
+# takes in same datatype as 'frame' but cropped to a face (e.g by get_faces_rects())
+# returns the index of the class
+def apply_model(face):
+    # Preprocess the face for age estimation
+    blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), (78.4263377603, 87.7689143744, 114.895847746), swapRB=False)
+    age_net.setInput(blob)
+    age_predictions = age_net.forward()
+
+    return age_predictions[0].argmax()
+
+
+def draw_label_effects(frame, class_index, facerect):
+    (x, y, w, h) = facerect
+    prefix = SELECTED_MODEL.labelPrefix
+    label = SELECTED_MODEL.labels[class_index]
+    if prefix: 
+        label = f"{prefix} {label}"
+
+    action = SELECTED_MODEL.labelActions[class_index]
+
+    if action == "showgreen": colour = GREEN
+    elif action == "showred": colour = RED
+
+    if action == "showgreen" or action == "showred":
+        cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, colour, 2)
+        cv2.rectangle(frame, (x, y), (x + w, y + h), colour, 2)
+    elif action == "blur":
+        print("blur placeholder")
+    elif action == "noise":
+        region = frame[y:y+h, x:x+w]
+        try:
+            frame[y:y+h, x:x+w] = salt_and_pepper(region)
+        except:
+            pass
+    else:
+        raise Exception("invalid label action")
+    return frame
+
+
+def process_frame(frame):
+    for facerect in get_faces_rects(frame):
+        (x, y, w, h) = facerect
         # Extract the face region
         face = frame[y:y+h, x:x+w]
 
-        # Preprocess the face for age estimation
-        blob = cv2.dnn.blobFromImage(face, 1.0, (227, 227), (78.4263377603, 87.7689143744, 114.895847746), swapRB=False)
-        age_net.setInput(blob)
-        age_predictions = age_net.forward()
 
-        class_index = age_predictions[0].argmax()
+        class_index = apply_model(face)
 
-        prefix = SELECTED_MODEL.labelPrefix
-        label = SELECTED_MODEL.labels[class_index]
-        if prefix: 
-            label = f"{prefix} {label}"
+        frame = draw_label_effects(frame, class_index, facerect)
 
-        action = SELECTED_MODEL.labelActions[class_index]
-
-        if action == "showgreen": colour = GREEN
-        elif action == "showred": colour = RED
-
-
-
-        if action == "showgreen" or action == "showred":
-            cv2.putText(frame, label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.8, colour, 2)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), colour, 2)
-        elif action == "blur":
-            print("blur placeholder")
-        elif action == "noise":
-            region = frame[y:y+h, x:x+w]
-            try:
-                frame[y:y+h, x:x+w] = salt_and_pepper(region)
-            except:
-                pass
-        else:
-            raise Exception("invalid label action")
+        
 
     return frame
