@@ -1,3 +1,5 @@
 # files and directories to ignore by git
 __pycache__/
 venv/
+*.caffemodel
+*.prototxt
