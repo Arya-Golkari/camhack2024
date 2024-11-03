@@ -18,6 +18,21 @@ AGE_MODEL = Model(protofile="deploy_age.prototxt",
                   labelActions=["showgreen"]*8
                   )
 
+AGE_AS_EMOTION_MODEL = Model(protofile="deploy_age.prototxt", 
+                  caffefile="age_net.caffemodel", 
+                  labels=["DANGER", "DANGER", "DANGER", "SAFE", "SAFE", "DANGER", "DANGER"],
+                  labelPrefix="",
+                    labelActions=[
+                        "blurnoise",
+                        "blurnoise",
+                        "showred",
+                        "showgreen",
+                        "showgreen",
+                        "showred",
+                        "blurnoise",
+                        "blurnoise"
+                    ])
+
 # https://github.com/GilLevi/AgeGenderDeepLearning/blob/master/EmotiW_Demo.ipynb
 EMOTION_CENSORSHIP_MODEL = Model(protofile="deploy.prototxt", 
                       caffefile="EmotiW_VGG_S.caffemodel",
@@ -57,7 +72,7 @@ EMOTION_MODEL_2 = Model(protofile="deploy.prototxt",
                       ])
 
  
-SELECTED_MODEL = EMOTION_CENSORSHIP_MODEL
+SELECTED_MODEL = AGE_AS_EMOTION_MODEL
 
 # face detection model
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
