@@ -22,7 +22,7 @@ detected_orange = False
 cooldown = False
 detection_start = time.time()
 
-COOLDOWN_TIME = 10
+COOLDOWN_TIME = 5
 
 # Save the warning audio
 speech = gTTS(text=WARNING, lang=LANGUAGE, slow=True)

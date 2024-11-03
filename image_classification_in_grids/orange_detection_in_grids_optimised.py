@@ -1,18 +1,21 @@
 from keras.models import load_model  # TensorFlow is required for Keras to work
 from PIL import Image, ImageOps  # Install pillow instead of PIL
 import numpy as np
-import cv2, time
+import cv2
 
 # Initialize video capture
 video = cv2.VideoCapture(0)
-address = r"https://10.252.84.251:8080/video"
-video.open(address)
+# address = r"https://10.252.84.251:8080/video"
+video.open(0)
+
+# Replace these with your rectangle's top-left (x, y) and width (w) and height (h)
+# x, y, w, h = 100, 100, 200, 200
 
 # Load the model
-model = load_model(r"keras_model.h5", compile=False)
+model = load_model(r"models/keras_model.h5", compile=False)
 
 # Load the labels
-class_names = open(r"labels.txt", "r").readlines()
+class_names = open(r"models/labels.txt", "r").readlines()
 
 def extract(frame):
     subframes = []
@@ -48,14 +51,15 @@ while True:
 
         # Replace this with the path to your image
         # image = Image.open(rf"images/{i}.jpg").convert("RGB")
-        image = Image.fromarray(cv2.cvtColor(subframes[i], cv2.COLOR_BGR2RGB))
+        # image = Image.fromarray(cv2.cvtColor(subframes[i], cv2.COLOR_BGR2RGB))
 
         # resizing the image to be at least 224x224 and then cropping from the center
-        # size = (224, 224)
+        # size = (250, 250)
         # image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
 
         # turn the image into a numpy array
-        image_array = np.asarray(image)
+        # image_array = np.asarray(image)
+        image_array = cv2.cvtColor(subframes[i], cv2.COLOR_BGR2RGB)
 
         # Normalize the image
         normalized_image_array = (image_array.astype(np.float32) / 127.5) - 1
@@ -93,8 +97,6 @@ while True:
     # Break loop on 'q' key press
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
-
-    time.sleep(0.2)
 
 # Release resources
 video.release()
