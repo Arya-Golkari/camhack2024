@@ -8,9 +8,6 @@ video = cv2.VideoCapture(0)
 address = r"https://10.252.84.251:8080/video"
 video.open(address)
 
-# Replace these with your rectangle's top-left (x, y) and width (w) and height (h)
-# x, y, w, h = 100, 100, 200, 200
-
 # Load the model
 model = load_model(r"keras_model.h5", compile=False)
 
@@ -54,7 +51,7 @@ while True:
         image = Image.fromarray(cv2.cvtColor(subframes[i], cv2.COLOR_BGR2RGB))
 
         # resizing the image to be at least 224x224 and then cropping from the center
-        # size = (250, 250)
+        # size = (224, 224)
         # image = ImageOps.fit(image, size, Image.Resampling.LANCZOS)
 
         # turn the image into a numpy array

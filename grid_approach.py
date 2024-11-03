@@ -5,8 +5,8 @@ import cv2, time
 
 # Initialize video capture
 video = cv2.VideoCapture(0)
-address = r"https://10.252.84.251:8080/video"
-video.open(address)
+# address = r"https://10.252.84.251:8080/video"
+# video.open(address)
 
 # Replace these with your rectangle's top-left (x, y) and width (w) and height (h)
 # x, y, w, h = 100, 100, 200, 200

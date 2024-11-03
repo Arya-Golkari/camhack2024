@@ -1,7 +1,7 @@
 from keras.models import load_model  # TensorFlow is required for Keras to work
 from PIL import Image, ImageOps  # Install pillow instead of PIL
 import numpy as np
-import cv2, time
+import cv2
 
 # Initialize video capture
 video = cv2.VideoCapture(0)

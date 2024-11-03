@@ -35,7 +35,7 @@ while True:
         np.set_printoptions(suppress=True)
 
         # Resize the raw image into (2224-height, 224-width) pixels
-        image = cv2.resize(image, (224, 224))
+        image = cv2.resize(subframes[i], (224, 224))
 
         # Make the image a numpy array and reshape it to the models input shape
         image = np.asarray(image, dtype=np.float32).reshape(1, 224, 224, 3)
